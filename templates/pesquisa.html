@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+
+{% block title %}Pesquisa - {{ app_name }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-10 mx-auto">
+        <!-- Cabeçalho -->
+        <div class="card shadow-sm mb-4 border-0">
+            <div class="card-body">
+                <h3 class="card-title">
+                    <i class="bi bi-search"></i> Pesquisa de Cadastros
+                </h3>
+            </div>
+        </div>
+
+        <!-- Formulário de Pesquisa -->
+        <div class="card shadow-sm mb-4 border-0">
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('pesquisa') }}">
+                    <div class="input-group input-group-lg">
+                        <input type="text" class="form-control" id="termo" name="termo" 
+                               placeholder="Digite nome, CPF, NIS, REF ou nome de membro da família..."
+                               value="{{ termo }}" autofocus>
+                        <button class="btn btn-primary" type="submit">
+                            <i class="bi bi-search"></i> Pesquisar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Resultados -->
+        {% if resultados %}
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">
+                    <i class="bi bi-list-check"></i> 
+                    {{ resultados|length }} resultado(s) encontrado(s)
+                </h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>REF</th>
+                                <th>Nome</th>
+                                <th>CPF</th>
+                                <th>Telefone</th>
+                                <th>Bairro</th>
+                                <th>Prioritário</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for cadastro in resultados %}
+                            <tr>
+                                <td><strong>{{ cadastro.ref_id }}</strong></td>
+                                <td>{{ cadastro.nome }}</td>
+                                <td>{{ cadastro.cpf }}</td>
+                                <td>{{ cadastro.telefone }}</td>
+                                <td>{{ cadastro.bairro }}</td>
+                                <td>
+                                    {% if cadastro.prioritario %}
+                                        <span class="badge bg-warning text-dark">Sim</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">Não</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <a href="{{ url_for('visualizar_cadastro', ref_id=cadastro.ref_id) }}" 
+                                           class="btn btn-info" title="Visualizar">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        <a href="{{ url_for('editar_cadastro', ref_id=cadastro.ref_id) }}" 
+                                           class="btn btn-warning" title="Editar">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        {% elif termo %}
+        <div class="alert alert-info">
+            <i class="bi bi-info-circle"></i> Nenhum resultado encontrado para "{{ termo }}"
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
