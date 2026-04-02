@@ -4,7 +4,18 @@
 -- =====================================================
 
 -- =====================================================
--- 1. TABELA DE CADASTROS
+-- 1. TABELA DE USUÁRIOS (SISTEMA)
+-- =====================================================
+CREATE TABLE IF NOT EXISTS usuarios (
+    id SERIAL PRIMARY KEY,
+    nome VARCHAR(100) NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    senha_hash VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc', NOW())
+);
+
+-- =====================================================
+-- 2. TABELA DE CADASTROS
 -- =====================================================
 CREATE TABLE IF NOT EXISTS cadastros (
     id BIGSERIAL PRIMARY KEY,

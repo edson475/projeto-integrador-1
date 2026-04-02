@@ -82,6 +82,7 @@ sistema-web-supabase/
 ├── templates/                  # Templates HTML
 │   ├── base.html               # Layout base
 │   ├── index.html              # Página inicial
+│   ├── login.html              # Tela de autenticação e bloqueio
 │   ├── cadastro.html           # Formulário de cadastro
 │   ├── pesquisa.html           # Busca de cadastros
 │   ├── lista.html              # Listagem completa
@@ -102,6 +103,18 @@ sistema-web-supabase/
 ---
 
 ## Estrutura do Banco de Dados (Supabase)
+
+### Tabela: usuarios (Acesso Restrito)
+
+```sql
+CREATE TABLE usuarios (
+    id SERIAL PRIMARY KEY,
+    nome VARCHAR(100) NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    senha_hash VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc', NOW())
+);
+```
 
 ### Tabela: cadastros
 
@@ -142,6 +155,13 @@ CREATE TABLE membros_familia (
     titular BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+```
+
+### Política de Acesso e RLS (Row Level Security)
+Para habilitar que a API leia as tabelas corretamente, especialmente a `usuarios`, configuramos exceções de bloqueio RLS.
+```sql
+ALTER TABLE usuarios ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Acesso total a usuarios" ON usuarios FOR ALL USING (true) WITH CHECK (true);
 ```
 
 ### Índices
@@ -201,6 +221,8 @@ SUPABASE_KEY=sua-chave-api-anon-aqui
 | Rota | Método | Descrição |
 |------|--------|-----------|
 | `/` | GET | Página inicial |
+| `/login` | GET/POST | Tela de autenticação e form de Entrada |
+| `/logout` | GET | Destroi a sessão atual com servidor |
 | `/cadastro` | GET | Formulário de novo cadastro |
 | `/cadastro/salvar` | POST | Salvar novo cadastro |
 | `/cadastro/<ref_id>` | GET | Visualizar cadastro |
@@ -214,6 +236,12 @@ SUPABASE_KEY=sua-chave-api-anon-aqui
 ---
 
 ## Funcionalidades Implementadas
+
+### Segurança e Acesso
+- [x] Login e controle restrito de Sistema.
+- [x] Ocultação proativa de menu no front-end baseado em `flask.session`.
+- [x] Criptografia de senhas padrão no Supabase utilizando `werkzeug.security` (padrão scrypt).
+- [x] Botão alternador de olho mágico do campo senha com puro JS (visibility toggle).
 
 ### Cadastro
 - [x] Novo cadastro com REF automático
@@ -311,7 +339,7 @@ Após iniciar, acessar: **http://127.0.0.1:5000**
 
 ## Próximos Passos (Melhorias Futuras)
 
-- [ ] Autenticação de usuários (login/senha)
+- [x] Autenticação de usuários (login/senha)
 - [ ] Controle de permissões
 - [ ] Exportação para PDF/Excel
 - [ ] Dashboard com estatísticas

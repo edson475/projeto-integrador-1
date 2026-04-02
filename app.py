@@ -1,4 +1,6 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
+from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, session
+from functools import wraps
+from werkzeug.security import check_password_hash
 from config import Config
 from database import db
 from validadores import Validadores
@@ -9,10 +11,60 @@ app.secret_key = Config.SECRET_KEY
 
 
 # =====================================================
+# DECORADOR DE AUTENTICAÇÃO
+# =====================================================
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'usuario_id' not in session:
+            flash('Por favor, faça login para acessar o sistema.', 'error')
+            return redirect(url_for('login', next=request.url))
+        return f(*args, **kwargs)
+    return decorated_function
+
+
+# =====================================================
+# ROTAS DE AUTENTICAÇÃO
+# =====================================================
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    """Tela de login"""
+    # Se já estiver logado, vai pra home
+    if 'usuario_id' in session:
+        return redirect(url_for('index'))
+        
+    if request.method == 'POST':
+        email = request.form.get('email', '').strip().lower()
+        senha = request.form.get('senha', '')
+        
+        usuario = db.buscar_usuario_por_email(email)
+        
+        if usuario and check_password_hash(usuario.get('senha_hash', ''), senha):
+            session['usuario_id'] = usuario['id']
+            session['usuario_nome'] = usuario['nome']
+            
+            proxima_pagina = request.args.get('next')
+            return redirect(proxima_pagina or url_for('index'))
+            
+        flash('E-mail ou senha incorretos.', 'error')
+        
+    return render_template('login.html')
+
+@app.route('/logout')
+def logout():
+    """Encerra a sessão"""
+    session.clear()
+    flash('Sessão encerrada com sucesso.', 'success')
+    return redirect(url_for('login'))
+
+
+# =====================================================
 # ROTAS PRINCIPAIS
 # =====================================================
 
 @app.route('/')
+@login_required
 def index():
     """Página inicial"""
     return render_template('index.html')
@@ -23,6 +75,7 @@ def index():
 # =====================================================
 
 @app.route('/cadastro')
+@login_required
 def cadastro():
     """Formulário de novo cadastro"""
     proximo_ref = db.obter_proximo_ref()
@@ -30,6 +83,7 @@ def cadastro():
 
 
 @app.route('/cadastro/salvar', methods=['POST'])
+@login_required
 def salvar_cadastro():
     """Salva novo cadastro"""
     try:
@@ -91,6 +145,7 @@ def salvar_cadastro():
 
 
 @app.route('/cadastro/<int:ref_id>')
+@login_required
 def visualizar_cadastro(ref_id):
     """Visualiza cadastro existente"""
     cadastro = db.buscar_cadastro(ref_id)
@@ -104,6 +159,7 @@ def visualizar_cadastro(ref_id):
 
 
 @app.route('/cadastro/<int:ref_id>/editar', methods=['GET', 'POST'])
+@login_required
 def editar_cadastro(ref_id):
     """Edita cadastro existente"""
     if request.method == 'GET':
@@ -172,6 +228,7 @@ def editar_cadastro(ref_id):
 
 
 @app.route('/cadastro/<int:ref_id>/excluir', methods=['POST'])
+@login_required
 def excluir_cadastro(ref_id):
     """Exclui cadastro"""
     try:
@@ -193,6 +250,7 @@ def excluir_cadastro(ref_id):
 # =====================================================
 
 @app.route('/pesquisa', methods=['GET', 'POST'])
+@login_required
 def pesquisa():
     """Pesquisa de cadastros"""
     resultados = []
@@ -220,6 +278,7 @@ def pesquisa():
 # =====================================================
 
 @app.route('/lista')
+@login_required
 def lista():
     """Lista todos os cadastros"""
     cadastros = db.buscar_cadastros()
@@ -231,6 +290,7 @@ def lista():
 # =====================================================
 
 @app.route('/familia/<int:ref_id>', methods=['GET', 'POST'])
+@login_required
 def gerenciar_familia(ref_id):
     """Gerencia composição familiar"""
     cadastro = db.buscar_cadastro(ref_id)
@@ -266,6 +326,7 @@ def gerenciar_familia(ref_id):
 
 
 @app.route('/familia/membro/<int:membro_id>/excluir', methods=['POST'])
+@login_required
 def excluir_membro(membro_id):
     """Exclui membro da família"""
     try:
@@ -328,7 +389,8 @@ def injetar_configuracoes():
     """Injeta variáveis nos templates"""
     return {
         'app_name': 'Sistema de Cadastro',
-        'ano': datetime.now().year
+        'ano': datetime.now().year,
+        'usuario_logado': session.get('usuario_nome')
     }
 
 

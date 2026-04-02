@@ -34,6 +34,38 @@ class SupabaseDB:
         except Exception as e:
             return False, str(e)
     
+    # ========== OPERAÇÕES COM USUÁRIOS ==========
+
+    def buscar_usuario_por_email(self, email):
+        """Busca usuário por e-mail para login"""
+        try:
+            response = self.client.table("usuarios")\
+                .select("*")\
+                .eq("email", email)\
+                .execute()
+            
+            if response.data and len(response.data) > 0:
+                return response.data[0]
+            
+            return None
+        except Exception as e:
+            print(f"✗ Erro ao buscar usuário: {e}")
+            return None
+
+    def inserir_usuario(self, nome, email, senha_hash):
+        """Insere um novo usuário administrativo"""
+        try:
+            dados = {
+                'nome': nome,
+                'email': email,
+                'senha_hash': senha_hash
+            }
+            response = self.client.table("usuarios").insert(dados).execute()
+            return True if response.data else False
+        except Exception as e:
+            print(f"✗ Erro ao inserir usuário: {e}")
+            return False
+
     # ========== OPERAÇÕES COM CADASTROS ==========
     
     def obter_proximo_ref(self):

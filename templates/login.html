@@ -1,0 +1,138 @@
+{% extends 'base.html' %}
+
+{% block title %}Login - {{ app_name }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    body {
+        background-color: #f8f9fa;
+        background-image: radial-gradient(circle at center, #e9ecef 0%, #f8f9fa 100%);
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+    }
+    main {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .login-card {
+        border: none;
+        border-radius: 1rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+    }
+    .login-header {
+        background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+        color: white;
+        padding: 2rem;
+        text-align: center;
+    }
+    .login-body {
+        padding: 2.5rem;
+        background: white;
+    }
+    .form-control {
+        padding: 0.8rem 1rem;
+        border-radius: 0.5rem;
+    }
+    .btn-login {
+        padding: 0.8rem;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+        border: none;
+    }
+    .btn-login:hover {
+        background: linear-gradient(135deg, #0b5ed7 0%, #084298 100%);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(13, 110, 253, 0.2);
+    }
+    footer {
+        display: none !important; /* Esconde o footer padrão na tela de login */
+    }
+    .navbar {
+        display: none !important; /* Esconde o navbar padrão na tela de login */
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center w-100">
+        <div class="col-12 col-md-8 col-lg-5">
+            <div class="card login-card">
+                <div class="login-header">
+                    <i class="bi bi-shield-check display-4 mb-3"></i>
+                    <h3 class="fw-bold mb-0">{{ app_name }}</h3>
+                    <p class="text-white-50 mt-2 mb-0">Acesso Restrito ao Sistema</p>
+                </div>
+                
+                <div class="login-body">
+                    <form method="POST" action="{{ url_for('login') }}">
+                        <div class="mb-4">
+                            <label for="email" class="form-label fw-medium text-muted">E-mail de Acesso</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0">
+                                    <i class="bi bi-envelope"></i>
+                                </span>
+                                <input type="email" class="form-control border-start-0 bg-light" id="email" name="email" 
+                                       placeholder="seu@email.com" required autofocus>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="senha" class="form-label fw-medium text-muted">Senha</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0">
+                                    <i class="bi bi-lock"></i>
+                                </span>
+                                <input type="password" class="form-control border-start-0 bg-light border-end-0" id="senha" name="senha" 
+                                       placeholder="Digite sua senha" required>
+                                <button class="btn btn-light border border-start-0 text-muted" type="button" id="btnToggleSenha">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="d-grid mt-5">
+                            <button type="submit" class="btn btn-primary btn-login btn-lg">
+                                Entrar no Sistema <i class="bi bi-arrow-right ms-2"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="text-center mt-4">
+                            <small class="text-muted">Esqueceu a senha? Contate o administrador.</small>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="text-center mt-4 text-muted">
+                <small><i class="bi bi-heart-fill text-danger"></i> Sistema de Assistência Social &copy; {{ ano }}</small>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.getElementById('btnToggleSenha').addEventListener('click', function() {
+        const inputSenha = document.getElementById('senha');
+        const icon = this.querySelector('i');
+        
+        if (inputSenha.type === 'password') {
+            inputSenha.type = 'text';
+            icon.classList.remove('bi-eye');
+            icon.classList.add('bi-eye-slash');
+        } else {
+            inputSenha.type = 'password';
+            icon.classList.remove('bi-eye-slash');
+            icon.classList.add('bi-eye');
+        }
+    });
+</script>
+{% endblock %}

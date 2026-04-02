@@ -44,3 +44,8 @@ env/
 # Sistema operacional
 .DS_Store
 Thumbs.db
+
+# Arquivos e testes temporários locais
+hash.txt
+test_auth.py
+supabase-credenciais.txt
