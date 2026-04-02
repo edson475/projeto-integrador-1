@@ -47,6 +47,8 @@ def salvar_cadastro():
             'numero': request.form.get('numero', '').strip(),
             'complemento': request.form.get('complemento', '').strip().upper(),
             'bairro': request.form.get('bairro', '').strip().upper(),
+            'cidade': request.form.get('cidade', '').strip().upper(),
+            'estado': request.form.get('estado', '').strip().upper(),
             'prioritario': request.form.get('prioritario') == 'on'
         }
         
@@ -129,6 +131,8 @@ def editar_cadastro(ref_id):
                 'numero': request.form.get('numero', '').strip(),
                 'complemento': request.form.get('complemento', '').strip().upper(),
                 'bairro': request.form.get('bairro', '').strip().upper(),
+                'cidade': request.form.get('cidade', '').strip().upper(),
+                'estado': request.form.get('estado', '').strip().upper(),
                 'prioritario': request.form.get('prioritario') == 'on'
             }
             

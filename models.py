@@ -22,6 +22,8 @@ class Cadastro:
         self.numero = ""
         self.complemento = ""
         self.bairro = ""
+        self.cidade = ""
+        self.estado = ""
         self.cep = ""
         self.telefone = ""
         self.cpf = ""
@@ -46,6 +48,8 @@ class Cadastro:
         self.numero = dados.get('numero', '')
         self.complemento = dados.get('complemento', '')
         self.bairro = dados.get('bairro', '')
+        self.cidade = dados.get('cidade', '')
+        self.estado = dados.get('estado', '')
         self.cep = dados.get('cep', '')
         self.telefone = dados.get('telefone', '')
         self.cpf = dados.get('cpf', '')
@@ -66,6 +70,8 @@ class Cadastro:
             'numero': self.numero,
             'complemento': self.complemento,
             'bairro': self.bairro,
+            'cidade': self.cidade,
+            'estado': self.estado,
             'cep': self.cep,
             'telefone': self.telefone,
             'cpf': self.cpf,

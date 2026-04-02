@@ -49,6 +49,7 @@
                                 <th>CPF</th>
                                 <th>Telefone</th>
                                 <th>Bairro</th>
+                                <th>Cidade/UF</th>
                                 <th>Prioritário</th>
                                 <th>Ações</th>
                             </tr>
@@ -61,6 +62,7 @@
                                 <td>{{ cadastro.cpf }}</td>
                                 <td>{{ cadastro.telefone }}</td>
                                 <td>{{ cadastro.bairro }}</td>
+                                <td>{{ cadastro.cidade }}/{{ cadastro.estado }}</td>
                                 <td>
                                     {% if cadastro.prioritario %}
                                         <span class="badge bg-warning text-dark">Sim</span>

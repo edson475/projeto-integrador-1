@@ -38,6 +38,7 @@
                                 <th>Telefone</th>
                                 <th>Endereço</th>
                                 <th>Bairro</th>
+                                <th>Cidade/UF</th>
                                 <th>Data Cadastro</th>
                                 <th>Prioritário</th>
                                 <th>Ações</th>
@@ -53,6 +54,7 @@
                                 <td>{{ cadastro.telefone }}</td>
                                 <td>{{ cadastro.endereco }}, {{ cadastro.numero }}</td>
                                 <td>{{ cadastro.bairro }}</td>
+                                <td>{{ cadastro.cidade }}/{{ cadastro.estado }}</td>
                                 <td>{{ cadastro.data_ref }}</td>
                                 <td>
                                     {% if cadastro.prioritario %}

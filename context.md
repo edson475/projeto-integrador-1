@@ -117,6 +117,8 @@ CREATE TABLE cadastros (
     numero VARCHAR(10),
     complemento VARCHAR(50),
     bairro VARCHAR(100),
+    cidade TEXT,
+    estado TEXT,
     cep VARCHAR(10),
     telefone VARCHAR(20),
     cpf VARCHAR(14),
@@ -217,7 +219,7 @@ SUPABASE_KEY=sua-chave-api-anon-aqui
 - [x] Novo cadastro com REF automático
 - [x] Validação de CPF e NIS
 - [x] Máscaras de entrada (JavaScript)
-- [x] Busca automática de CEP
+- [x] Busca automática de CEP (preenchendo endereço, bairro, cidade e estado)
 - [x] Campo prioritário (Sim/Não)
 
 ### Composição Familiar

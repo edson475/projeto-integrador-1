@@ -127,14 +127,28 @@
                         </div>
 
                         <!-- Bairro -->
-                        <div class="col-md-6">
+                        <div class="col-md-3">
                             <label for="bairro" class="form-label">Bairro</label>
                             <input type="text" class="form-control" id="bairro" name="bairro" 
                                    value="{{ cadastro.bairro if cadastro else '' }}">
                         </div>
 
+                        <!-- Cidade -->
+                        <div class="col-md-4">
+                            <label for="cidade" class="form-label">Cidade</label>
+                            <input type="text" class="form-control" id="cidade" name="cidade" 
+                                   value="{{ cadastro.cidade if cadastro else '' }}">
+                        </div>
+
+                        <!-- Estado -->
+                        <div class="col-md-2">
+                            <label for="estado" class="form-label">Estado</label>
+                            <input type="text" class="form-control" id="estado" name="estado" 
+                                   value="{{ cadastro.estado if cadastro else '' }}" maxlength="2">
+                        </div>
+
                         <!-- Prioritário -->
-                        <div class="col-md-6">
+                        <div class="col-md-3">
                             <label class="form-label d-block">Prioritário?</label>
                             <div class="form-check form-check-inline">
                                 <input class="form-check-input" type="checkbox" id="prioritario" name="prioritario" 
@@ -243,6 +257,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (!data.erro) {
                         document.getElementById('endereco').value = data.logradouro;
                         document.getElementById('bairro').value = data.bairro;
+                        document.getElementById('cidade').value = data.localidade;
+                        document.getElementById('estado').value = data.uf;
                         document.getElementById('numero').focus();
                     }
                 })
