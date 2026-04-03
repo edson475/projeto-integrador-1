@@ -59,10 +59,25 @@
 </style>
 {% endblock %}
 
+{% block flash_messages %}{% endblock %}
+
 {% block content %}
 <div class="container">
     <div class="row justify-content-center w-100">
         <div class="col-12 col-md-8 col-lg-5">
+            
+            <!-- Mensagens Flash Posicionadas para o Login -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ 'danger' if category == 'error' else 'success' if category == 'success' else 'primary' }} alert-dismissible fade show shadow-sm text-center fw-medium" role="alert" style="border-radius: 1rem; border: none;">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
             <div class="card login-card">
                 <div class="login-header">
                     <i class="bi bi-shield-check display-4 mb-3"></i>
