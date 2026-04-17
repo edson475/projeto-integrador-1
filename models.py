@@ -129,3 +129,124 @@ class MembroFamilia:
     
     def __repr__(self):
         return f"Membro(Nome={self.nome}, Vínculo={self.vinculo})"
+
+
+class Prontuario:
+    """Modelo de Prontuário SUAS"""
+    
+    def __init__(self, dados=None):
+        self.id = None
+        self.cadastro_ref_id = None
+        self.tecnico_id = None
+        self.data_abertura = ""
+        self.servico_vinculado = ""
+        self.motivo_procura = ""
+        self.status = "Ativo"
+        self.created_at = None
+        
+        # Campos populados por Join
+        self.tecnico_nome = ""
+        
+        if dados:
+            self.carregar(dados)
+
+    def carregar(self, dados):
+        self.id = dados.get('id')
+        self.cadastro_ref_id = dados.get('cadastro_ref_id')
+        self.tecnico_id = dados.get('tecnico_id')
+        self.data_abertura = dados.get('data_abertura', '')
+        self.servico_vinculado = dados.get('servico_vinculado', '')
+        self.motivo_procura = dados.get('motivo_procura', '')
+        self.status = dados.get('status', 'Ativo')
+        self.created_at = dados.get('created_at')
+        
+        # Tratar o Join vindo do Supabase
+        if 'usuarios' in dados and isinstance(dados['usuarios'], dict):
+            self.tecnico_nome = dados['usuarios'].get('nome', '')
+
+    def para_dict(self):
+        return {
+            'cadastro_ref_id': self.cadastro_ref_id,
+            'tecnico_id': self.tecnico_id,
+            'data_abertura': self.data_abertura,
+            'servico_vinculado': self.servico_vinculado,
+            'motivo_procura': self.motivo_procura,
+            'status': self.status
+        }
+        
+
+class Atendimento:
+    """Modelo de Atendimento do Prontuário"""
+    
+    def __init__(self, dados=None):
+        self.id = None
+        self.prontuario_id = None
+        self.tecnico_id = None
+        self.data_atendimento = ""
+        self.tipo_atendimento = ""
+        self.demanda = ""
+        self.descricao = ""
+        self.created_at = None
+        
+        self.tecnico_nome = ""
+        self.encaminhamentos = []
+        
+        if dados:
+            self.carregar(dados)
+
+    def carregar(self, dados):
+        self.id = dados.get('id')
+        self.prontuario_id = dados.get('prontuario_id')
+        self.tecnico_id = dados.get('tecnico_id')
+        self.data_atendimento = dados.get('data_atendimento', '')
+        self.tipo_atendimento = dados.get('tipo_atendimento', '')
+        self.demanda = dados.get('demanda', '')
+        self.descricao = dados.get('descricao', '')
+        self.created_at = dados.get('created_at')
+        
+        if 'usuarios' in dados and isinstance(dados['usuarios'], dict):
+            self.tecnico_nome = dados['usuarios'].get('nome', '')
+
+    def para_dict(self):
+        return {
+            'prontuario_id': self.prontuario_id,
+            'tecnico_id': self.tecnico_id,
+            'data_atendimento': self.data_atendimento,
+            'tipo_atendimento': self.tipo_atendimento,
+            'demanda': self.demanda,
+            'descricao': self.descricao
+        }
+
+
+class Encaminhamento:
+    """Modelo de Encaminhamento"""
+    
+    def __init__(self, dados=None):
+        self.id = None
+        self.atendimento_id = None
+        self.servico_destino = ""
+        self.motivo = ""
+        self.status = "Pendente"
+        self.retorno = ""
+        self.created_at = None
+        
+        if dados:
+            self.carregar(dados)
+
+    def carregar(self, dados):
+        self.id = dados.get('id')
+        self.atendimento_id = dados.get('atendimento_id')
+        self.servico_destino = dados.get('servico_destino', '')
+        self.motivo = dados.get('motivo', '')
+        self.status = dados.get('status', 'Pendente')
+        self.retorno = dados.get('retorno', '')
+        self.created_at = dados.get('created_at')
+
+    def para_dict(self):
+        return {
+            'atendimento_id': self.atendimento_id,
+            'servico_destino': self.servico_destino,
+            'motivo': self.motivo,
+            'status': self.status,
+            'retorno': self.retorno
+        }

@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+
+{% block title %}Novo Atendimento | {{ app_name }}{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ url_for('lista') }}" class="text-decoration-none">Famílias</a></li>
+        <li class="breadcrumb-item"><a href="{{ url_for('prontuario', ref_id=cadastro.ref_id) }}" class="text-decoration-none">{{ cadastro.nome }}</a></li>
+        <li class="breadcrumb-item"><a href="{{ url_for('prontuario', ref_id=cadastro.ref_id) }}" class="text-decoration-none">Prontuário</a></li>
+        <li class="breadcrumb-item active">Novo Atendimento</li>
+    </ol>
+</nav>
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-white py-3">
+                <h4 class="mb-0"><i class="bi bi-pencil-square text-primary"></i> Registrar Atendimento</h4>
+                <p class="text-muted small mb-0 mt-1">Vincular relato ao prontuário da família (Ref: #{{ cadastro.ref_id }})</p>
+            </div>
+            
+            <div class="card-body">
+                <div class="alert alert-light border d-flex gap-2 align-items-center mb-4">
+                    <i class="bi bi-person-badge fs-4 text-secondary"></i>
+                    <div>
+                        <strong>Responsável Familiar:</strong> {{ cadastro.nome }}<br>
+                        <small class="text-muted">Serviço: {{ prontuario.servico_vinculado }} | Técnico Atual: {{ usuario_logado }}</small>
+                    </div>
+                </div>
+
+                <form method="POST">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Tipo de Atendimento <span class="text-danger">*</span></label>
+                            <select name="tipo_atendimento" class="form-select" required>
+                                <option value="">Selecione...</option>
+                                <option value="Individual">Atendimento Individual</option>
+                                <option value="Familiar">Atendimento Familiar</option>
+                                <option value="Visita Domiciliar">Visita Domiciliar</option>
+                                <option value="Telefônico">Atendimento Telefônico</option>
+                                <option value="Grupo / Coletivo">Grupo / Oficina Coletiva</option>
+                                <option value="Outro">Outro</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Demanda Apresentada <span class="text-danger">*</span></label>
+                            <select name="demanda" class="form-select" required>
+                                <option value="">Selecione a demanda principal...</option>
+                                <option value="Acompanhamento PAIF">Acompanhamento de Rotina (PAIF)</option>
+                                <option value="Benefícios Sociais/CadÚnico">Inclusão/Atualização CadÚnico e Benefícios</option>
+                                <option value="Orientação Social">Orientação Social e Informação</option>
+                                <option value="Situação de Risco ou Violência">Ocorrência de Violação/Risco</option>
+                                <option value="Acolhimento Inicial">Acolhimento Inicial</option>
+                                <option value="Outro">Outro (Descrever no texto)</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="form-label">Descrição Tratada (Parecer) <span class="text-danger">*</span></label>
+                        <textarea name="descricao" class="form-control" rows="5" required placeholder="Relate as observações pontuadas, encaminhamentos pretendidos e as diretrizes traçadas durante o encontro..."></textarea>
+                    </div>
+                    
+                    <div class="mb-4 bg-light rounded p-3 border">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" role="switch" id="gerar_encaminhamento" name="gerar_encaminhamento">
+                            <label class="form-check-label fw-bold" for="gerar_encaminhamento">Este atendimento gerou o encaminhamento para a rede intersetorial?</label>
+                            <div class="form-text text-muted">Ao marcar, o sistema salvará este atendimento e o redirecionará para a tela de Encaminhamento.</div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-end gap-2">
+                        <a href="{{ url_for('prontuario', ref_id=cadastro.ref_id) }}" class="btn btn-outline-secondary">Cancelar</a>
+                        <button type="submit" class="btn btn-primary"><i class="bi bi-save"></i> Salvar e Retornar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

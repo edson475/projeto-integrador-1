@@ -182,11 +182,24 @@
 
         <!-- Link para Composição Familiar (apenas se cadastro existir) -->
         {% if cadastro %}
-        <div class="card shadow-sm border-0">
-            <div class="card-body text-center">
-                <a href="{{ url_for('gerenciar_familia', ref_id=cadastro.ref_id) }}" class="btn btn-success btn-lg">
-                    <i class="bi bi-people-fill"></i> Gerenciar Composição Familiar
-                </a>
+        <div class="row g-3">
+            <div class="col-md-6">
+                <div class="card shadow-sm border-0 h-100">
+                    <div class="card-body text-center d-flex flex-column justify-content-center">
+                        <a href="{{ url_for('gerenciar_familia', ref_id=cadastro.ref_id) }}" class="btn btn-success btn-lg">
+                            <i class="bi bi-people-fill"></i> Gerenciar Composição Familiar
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card shadow-sm border-0 h-100">
+                    <div class="card-body text-center d-flex flex-column justify-content-center">
+                        <a href="{{ url_for('prontuario', ref_id=cadastro.ref_id) }}" class="btn btn-primary btn-lg">
+                            <i class="bi bi-file-medical"></i> Prontuário SUAS e Atendimentos
+                        </a>
+                    </div>
+                </div>
             </div>
         </div>
         {% endif %}

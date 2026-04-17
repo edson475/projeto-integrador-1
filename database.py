@@ -264,6 +264,149 @@ class SupabaseDB:
             print(f"✗ Erro ao buscar por membro da família: {e}")
             return []
 
+    # ========== OPERAÇÕES COM PRONTUÁRIOS ==========
+    
+    def criar_prontuario(self, dados):
+        try:
+            response = self.client.table("prontuarios").insert(dados).execute()
+            if response.data:
+                return response.data[0]['id'], True
+            return None, False
+        except Exception as e:
+            print(f"✗ Erro ao criar prontuário: {e}")
+            return None, False
+            
+    def buscar_prontuario_por_cadastro(self, cadastro_ref_id):
+        try:
+            response = self.client.table("prontuarios")\
+                .select("*, usuarios(nome)")\
+                .eq("cadastro_ref_id", cadastro_ref_id)\
+                .execute()
+                
+            if response.data and len(response.data) > 0:
+                return response.data[0]
+            return None
+        except Exception as e:
+            print(f"✗ Erro ao buscar prontuário por ref: {e}")
+            return None
+            
+    def buscar_prontuario(self, prontuario_id):
+        try:
+            response = self.client.table("prontuarios")\
+                .select("*, usuarios(nome)")\
+                .eq("id", prontuario_id)\
+                .execute()
+                
+            if response.data and len(response.data) > 0:
+                return response.data[0]
+            return None
+        except Exception as e:
+            print(f"✗ Erro ao buscar prontuário: {e}")
+            return None
+
+    # ========== OPERAÇÕES COM ATENDIMENTOS ==========
+    
+    def registrar_atendimento(self, dados):
+        try:
+            response = self.client.table("atendimentos").insert(dados).execute()
+            if response.data:
+                return response.data[0]['id'], True
+            return None, False
+        except Exception as e:
+            print(f"✗ Erro ao registrar atendimento: {e}")
+            return None, False
+
+    def obter_atendimentos_do_prontuario(self, prontuario_id):
+        try:
+            response = self.client.table("atendimentos")\
+                .select("*, usuarios(nome)")\
+                .eq("prontuario_id", prontuario_id)\
+                .order("data_atendimento", desc=True)\
+                .execute()
+                
+            return response.data if response.data else []
+        except Exception as e:
+            print(f"✗ Erro ao obter atendimentos: {e}")
+            return []
+            
+    def buscar_atendimento(self, atendimento_id):
+        try:
+            response = self.client.table("atendimentos")\
+                .select("*, usuarios(nome)")\
+                .eq("id", atendimento_id)\
+                .execute()
+                
+            if response.data and len(response.data) > 0:
+                return response.data[0]
+            return None
+        except Exception as e:
+            print(f"✗ Erro ao buscar atendimento: {e}")
+            return None
+
+    # ========== OPERAÇÕES COM ENCAMINHAMENTOS ==========
+    
+    def registrar_encaminhamento(self, dados):
+        try:
+            response = self.client.table("encaminhamentos").insert(dados).execute()
+            if response.data:
+                return response.data[0]['id'], True
+            return None, False
+        except Exception as e:
+            print(f"✗ Erro ao registrar encaminhamento: {e}")
+            return None, False
+
+    def buscar_encaminhamento(self, enc_id):
+        try:
+            response = self.client.table("encaminhamentos").select("*").eq("id", enc_id).execute()
+            if response.data and len(response.data) > 0:
+                return response.data[0]
+            return None
+        except Exception as e:
+            print(f"✗ Erro ao buscar encaminhamento: {e}")
+            return None
+            
+    def concluir_encaminhamento(self, enc_id):
+        try:
+            response = self.client.table("encaminhamentos").update({"status": "Realizado"}).eq("id", enc_id).execute()
+            if response.data:
+                return True
+            return False
+        except Exception as e:
+            print(f"✗ Erro ao concluir encaminhamento: {e}")
+            return False
+
+    def obter_encaminhamentos_do_atendimento(self, atendimento_id):
+        try:
+            response = self.client.table("encaminhamentos")\
+                .select("*")\
+                .eq("atendimento_id", atendimento_id)\
+                .order("created_at", desc=False)\
+                .execute()
+                
+            return response.data if response.data else []
+        except Exception as e:
+            print(f"✗ Erro ao obter encaminhamentos do atendimento: {e}")
+            return []
+            
+    def obter_encaminhamentos_do_prontuario(self, prontuario_id):
+        try:
+            atendimentos = self.obter_atendimentos_do_prontuario(prontuario_id)
+            if not atendimentos:
+                return []
+                
+            ids_atendimentos = [a['id'] for a in atendimentos]
+            
+            response = self.client.table("encaminhamentos")\
+                .select("*")\
+                .in_("atendimento_id", ids_atendimentos)\
+                .order("created_at", desc=True)\
+                .execute()
+            
+            return response.data if response.data else []
+        except Exception as e:
+            print(f"✗ Erro ao obter todos os encaminhamentos do prontuário: {e}")
+            return []
+
 
 # Instância singleton do banco de dados
 db = SupabaseDB()

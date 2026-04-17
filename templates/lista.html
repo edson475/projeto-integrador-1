@@ -77,10 +77,15 @@
                                            class="btn btn-success" title="Família">
                                             <i class="bi bi-people"></i>
                                         </a>
+                                        <a href="{{ url_for('prontuario', ref_id=cadastro.ref_id) }}" 
+                                           class="btn btn-primary" title="Prontuário SUAS">
+                                            <i class="bi bi-file-medical"></i>
+                                        </a>
                                         <form action="{{ url_for('excluir_cadastro', ref_id=cadastro.ref_id) }}" 
                                               method="POST" class="d-inline"
                                               onsubmit="return confirm('Tem certeza que deseja excluir este cadastro? Esta ação não pode ser desfeita.')">
                                             <button type="submit" class="btn btn-danger" title="Excluir">
+
                                                 <i class="bi bi-trash"></i>
                                             </button>
                                         </form>

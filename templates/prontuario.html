@@ -1,0 +1,231 @@
+{% extends 'base.html' %}
+
+{% block title %}Prontuário - {{ cadastro.nome }} | {{ app_name }}{% endblock %}
+
+{% block extra_css %}
+<style>
+.timeline {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+.timeline-item {
+    display: flex;
+    gap: 12px;
+    padding: 0 0 16px 0;
+    position: relative;
+}
+.timeline-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--bs-primary);
+    flex-shrink: 0;
+    margin-top: 5px;
+    z-index: 1;
+}
+.timeline-line {
+    position: absolute;
+    left: 5px;
+    top: 17px;
+    bottom: 0;
+    width: 2px;
+    background: var(--bs-gray-300);
+}
+.timeline-item:last-child .timeline-line {
+    display: none;
+}
+.timeline-date {
+    font-size: 0.85rem;
+    color: var(--bs-gray-600);
+    margin-bottom: 2px;
+}
+.timeline-title {
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--bs-dark);
+}
+.timeline-text {
+    font-size: 0.9rem;
+    color: var(--bs-gray-700);
+    margin-top: 4px;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ url_for('lista') }}" class="text-decoration-none">Famílias</a></li>
+        <li class="breadcrumb-item"><a href="{{ url_for('visualizar_cadastro', ref_id=cadastro.ref_id) }}" class="text-decoration-none">{{ cadastro.nome }}</a></li>
+        <li class="breadcrumb-item active">Prontuário SUAS</li>
+    </ol>
+</nav>
+
+<div class="row mb-4 align-items-center">
+    <div class="col-md-8">
+        <h2 class="mb-1"><i class="bi bi-file-medical text-primary"></i> Prontuário SUAS</h2>
+        <p class="text-muted mb-0">
+            Família: <strong>{{ cadastro.nome }}</strong> (Ref: #{{ cadastro.ref_id }})
+            {% if prontuario %}
+            | <span class="badge bg-success">Ativo</span>
+            {% else %}
+            | <span class="badge bg-secondary">Sem Prontuário</span>
+            {% endif %}
+        </p>
+    </div>
+    {% if prontuario %}
+    <div class="col-md-4 text-md-end mt-3 mt-md-0">
+        <a href="{{ url_for('novo_atendimento', prontuario_id=prontuario.id) }}" class="btn btn-primary">
+            <i class="bi bi-plus-lg"></i> Registrar Atendimento
+        </a>
+    </div>
+    {% endif %}
+</div>
+
+{% if not prontuario %}
+<div class="card shadow-sm border-0">
+    <div class="card-body text-center py-5">
+        <i class="bi bi-folder-x text-muted" style="font-size: 3rem;"></i>
+        <h4 class="mt-3">Família sem Prontuário</h4>
+        <p class="text-muted">A família "{{ cadastro.nome }}" ainda não possui um prontuário de acompanhamento aberto no CRAS.</p>
+        
+        <hr class="my-4 w-50 mx-auto">
+        
+        <form action="{{ url_for('abrir_prontuario', ref_id=cadastro.ref_id) }}" method="POST" class="w-50 mx-auto text-start">
+            <h5 class="mb-3">Abertura de Prontuário</h5>
+            <div class="mb-3">
+                <label class="form-label">Serviço Vinculado <span class="text-danger">*</span></label>
+                <select name="servico_vinculado" class="form-select" required>
+                    <option value="">Selecione...</option>
+                    <option value="PAIF">PAIF - Proteção e Atendimento Integral à Família</option>
+                    <option value="SCFV">SCFV - Serviço de Convivência e Fortalecimento de Vínculos</option>
+                    <option value="Acesso BPC">Acesso BPC na Escola</option>
+                    <option value="PAEFI">PAEFI (Acompanhamento CREAS)</option>
+                    <option value="Acessuas Trabalho">Acessuas Trabalho</option>
+                    <option value="Outro">Outro Serviço</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Motivo da Procura / Encaminhamento <span class="text-danger">*</span></label>
+                <textarea name="motivo_procura" class="form-control" rows="3" required placeholder="Ex: Baixa renda, solicitação de cesta básica, vulnerabilidade social..."></textarea>
+            </div>
+            <button type="submit" class="btn btn-success w-100">
+                <i class="bi bi-check-circle"></i> Abrir Prontuário
+            </button>
+        </form>
+    </div>
+</div>
+{% else %}
+<div class="row">
+    <!-- Coluna Esquerda: Dados -->
+    <div class="col-lg-4 mb-4">
+        <div class="card shadow-sm border-0 mb-3">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">Dados da Abertura</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item px-0">
+                        <small class="text-muted d-block">Data de Abertura</small>
+                        {{ prontuario.data_abertura }}
+                    </li>
+                    <li class="list-group-item px-0">
+                        <small class="text-muted d-block">Técnico Responsável na Abertura</small>
+                        {{ prontuario.usuarios.nome if prontuario.usuarios else 'Não atribuído' }}
+                    </li>
+                    <li class="list-group-item px-0">
+                        <small class="text-muted d-block">Serviço Vinculado</small>
+                        {{ prontuario.servico_vinculado }}
+                    </li>
+                    <li class="list-group-item px-0">
+                        <small class="text-muted d-block">Motivo Principal</small>
+                        {{ prontuario.motivo_procura }}
+                    </li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="card shadow-sm border-0 bg-light">
+            <div class="card-body">
+                <h6 class="card-title text-muted mb-3"><i class="bi bi-info-circle"></i> Informações</h6>
+                <p class="small text-muted mb-0">Cada novo atendimento enriquece o histórico da família. Adicione encaminhamentos somente nos relacionamentos onde enviamos esta família a outra política pública.</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Coluna Direita: Timeline de Atendimentos -->
+    <div class="col-lg-8">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Histórico de Atendimentos</h5>
+                <span class="badge bg-secondary">{{ atendimentos|length }} registros</span>
+            </div>
+            <div class="card-body">
+                {% if atendimentos|length == 0 %}
+                    <div class="text-center py-4">
+                        <p class="text-muted mb-0">Nenhum atendimento registrado até o momento.</p>
+                    </div>
+                {% else %}
+                    <div class="timeline">
+                        {% for at in atendimentos %}
+                        <div class="timeline-item">
+                            <div class="timeline-dot {% if loop.first %}bg-success{% endif %}"></div>
+                            <div class="timeline-line"></div>
+                            <div class="timeline-content w-100">
+                                <div class="timeline-date d-flex justify-content-between">
+                                    <span>{{ at.data_atendimento }} &middot; Técnico: {{ at.usuarios.nome if at.usuarios else 'Sem Tec' }}</span>
+                                    <span class="badge border border-secondary text-secondary">{{ at.tipo_atendimento }}</span>
+                                </div>
+                                <div class="timeline-title mt-1">{{ at.demanda }}</div>
+                                <div class="timeline-text">{{ at.descricao }}</div>
+                                
+                                {% if at.encaminhamentos %}
+                                <div class="mt-2 p-2 bg-light rounded border border-light">
+                                    <h6 class="small fw-bold text-muted mb-1"><i class="bi bi-arrow-right-circle"></i> Encaminhamentos:</h6>
+                                    {% for enc in at.encaminhamentos %}
+                                        <div class="d-flex justify-content-between align-items-center small mt-1">
+                                            <span><strong>{{ enc.servico_destino }}</strong> - {{ enc.motivo }}</span>
+                                            <div class="d-flex align-items-center">
+                                                {% if enc.status == 'Realizado' %}
+                                                    <span class="badge bg-success ms-2">Realizado</span>
+                                                {% else %}
+                                                    <span class="badge bg-warning text-dark ms-2">Pendente</span>
+                                                    <form method="POST" action="{{ url_for('concluir_encaminhamento', enc_id=enc.id) }}" class="d-inline ms-2">
+                                                        <button type="submit" class="btn btn-sm btn-outline-success py-0 px-1" style="font-size: 0.75rem;" title="Marcar como realizado">
+                                                            <i class="bi bi-check2"></i>
+                                                        </button>
+                                                    </form>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                                
+                                <div class="mt-2">
+                                    <a href="{{ url_for('novo_encaminhamento', atendimento_id=at.id) }}" class="btn btn-sm btn-link text-decoration-none px-0 text-primary">
+                                        <i class="bi bi-plus-circle"></i> Adicionar Encaminhamento
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                        
+                        <!-- Ponto inicial da Timeline -->
+                        <div class="timeline-item pb-0">
+                            <div class="timeline-dot bg-secondary"></div>
+                            <div class="timeline-content">
+                                <div class="timeline-date">{{ prontuario.data_abertura }}</div>
+                                <div class="timeline-title text-muted">Abertura de Prontuário</div>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% endblock %}

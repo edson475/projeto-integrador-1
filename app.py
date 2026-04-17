@@ -348,6 +348,147 @@ def excluir_membro(membro_id):
 
 
 # =====================================================
+# ROTAS DE PRONTUÁRIO
+# =====================================================
+
+@app.route('/prontuario/<int:ref_id>')
+@login_required
+def prontuario(ref_id):
+    """Visualiza e manipula o dossiê Prontuário SUAS"""
+    cadastro = db.buscar_cadastro(ref_id)
+    if not cadastro:
+        flash('Cadastro não encontrado', 'error')
+        return redirect(url_for('lista'))
+        
+    prontuario = db.buscar_prontuario_por_cadastro(ref_id)
+    
+    if not prontuario:
+        # Família sem prontuário, mostra opção para abrir
+        return render_template('prontuario.html', cadastro=cadastro, prontuario=None)
+        
+    # Busca atendimentos e encaminhamentos
+    atendimentos = db.obter_atendimentos_do_prontuario(prontuario['id'])
+    
+    for at in atendimentos:
+        at['encaminhamentos'] = db.obter_encaminhamentos_do_atendimento(at['id'])
+        
+    return render_template('prontuario.html', cadastro=cadastro, prontuario=prontuario, atendimentos=atendimentos)
+
+@app.route('/prontuario/<int:ref_id>/abrir', methods=['POST'])
+@login_required
+def abrir_prontuario(ref_id):
+    servico = request.form.get('servico_vinculado', '')
+    motivo = request.form.get('motivo_procura', '')
+    
+    dados = {
+        'cadastro_ref_id': ref_id,
+        'tecnico_id': session.get('usuario_id'),
+        'servico_vinculado': servico,
+        'motivo_procura': motivo,
+        'data_abertura': datetime.now().strftime('%Y-%m-%d')
+    }
+    
+    p_id, sucesso = db.criar_prontuario(dados)
+    if sucesso:
+        flash('Prontuário aberto com sucesso!', 'success')
+    else:
+        flash('Erro ao abrir prontuário.', 'error')
+        
+    return redirect(url_for('prontuario', ref_id=ref_id))
+
+@app.route('/prontuario/<int:prontuario_id>/atendimento/novo', methods=['GET', 'POST'])
+@login_required
+def novo_atendimento(prontuario_id):
+    prontuario = db.buscar_prontuario(prontuario_id)
+    if not prontuario:
+        flash('Prontuário não encontrado', 'error')
+        return redirect(url_for('lista'))
+        
+    cadastro = db.buscar_cadastro(prontuario['cadastro_ref_id'])
+    
+    if request.method == 'POST':
+        tipo = request.form.get('tipo_atendimento')
+        demanda = request.form.get('demanda')
+        descricao = request.form.get('descricao')
+        gerar_encaminhamento = request.form.get('gerar_encaminhamento') == 'on'
+        
+        dados = {
+            'prontuario_id': prontuario_id,
+            'tecnico_id': session.get('usuario_id'),
+            'tipo_atendimento': tipo,
+            'demanda': demanda,
+            'descricao': descricao,
+            'data_atendimento': datetime.now().strftime('%Y-%m-%d')
+        }
+        
+        atendente_id, sucesso = db.registrar_atendimento(dados)
+        
+        if sucesso:
+            flash('Atendimento registrado com sucesso', 'success')
+            if gerar_encaminhamento:
+                return redirect(url_for('novo_encaminhamento', atendimento_id=atendente_id))
+            return redirect(url_for('prontuario', ref_id=prontuario['cadastro_ref_id']))
+        else:
+            flash('Erro ao registrar atendimento', 'error')
+            
+    return render_template('novo_atendimento.html', prontuario=prontuario, cadastro=cadastro)
+
+@app.route('/atendimento/<int:atendimento_id>/encaminhamento/novo', methods=['GET', 'POST'])
+@login_required
+def novo_encaminhamento(atendimento_id):
+    atendimento = db.buscar_atendimento(atendimento_id)
+    if not atendimento:
+        flash('Atendimento não encontrado', 'error')
+        return redirect(url_for('lista'))
+        
+    prontuario = db.buscar_prontuario(atendimento['prontuario_id'])
+    cadastro = db.buscar_cadastro(prontuario['cadastro_ref_id'])
+    
+    if request.method == 'POST':
+        servico = request.form.get('servico_destino')
+        motivo = request.form.get('motivo')
+        
+        dados = {
+            'atendimento_id': atendimento_id,
+            'servico_destino': servico,
+            'motivo': motivo,
+            'status': 'Pendente'
+        }
+        
+        _, sucesso = db.registrar_encaminhamento(dados)
+        
+        if sucesso:
+            flash('Encaminhamento registrado com sucesso', 'success')
+        else:
+            flash('Erro ao registrar encaminhamento', 'error')
+            
+        return redirect(url_for('prontuario', ref_id=prontuario['cadastro_ref_id']))
+        
+    historico = db.obter_encaminhamentos_do_prontuario(prontuario['id'])
+        
+    return render_template('novo_encaminhamento.html', atendimento=atendimento, prontuario=prontuario, cadastro=cadastro, historico=historico)
+
+@app.route('/encaminhamento/<int:enc_id>/concluir', methods=['POST'])
+@login_required
+def concluir_encaminhamento(enc_id):
+    encaminhamento = db.buscar_encaminhamento(enc_id)
+    if not encaminhamento:
+        flash('Encaminhamento não encontrado', 'error')
+        return redirect(url_for('lista'))
+        
+    atendimento = db.buscar_atendimento(encaminhamento['atendimento_id'])
+    prontuario = db.buscar_prontuario(atendimento['prontuario_id'])
+    
+    sucesso = db.concluir_encaminhamento(enc_id)
+    if sucesso:
+        flash('Encaminhamento marcado como Realizado', 'success')
+    else:
+        flash('Erro ao atualizar encaminhamento', 'error')
+        
+    return redirect(url_for('prontuario', ref_id=prontuario['cadastro_ref_id']))
+
+
+# =====================================================
 # API DE CEP
 # =====================================================
 
