@@ -114,6 +114,9 @@ def salvar_cadastro():
         
         if dados['cpf'] and not Validadores.validar_cpf(dados['cpf']):
             erros.append('CPF inválido')
+
+        if dados['rg'] and not Validadores.validar_rg(dados['rg']):
+            erros.append('RG inválido.')
         
         if dados['nis'] and not Validadores.validar_nis(dados['nis']):
             erros.append('NIS inválido')
@@ -200,6 +203,9 @@ def editar_cadastro(ref_id):
             
             if dados['cpf'] and not Validadores.validar_cpf(dados['cpf']):
                 erros.append('CPF inválido')
+
+            if dados['rg'] and not Validadores.validar_rg(dados['rg']):
+                erros.append('RG inválido.')
             
             if dados['nis'] and not Validadores.validar_nis(dados['nis']):
                 erros.append('NIS inválido')

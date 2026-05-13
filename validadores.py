@@ -15,6 +15,8 @@ class Validadores:
         cpf_limpo = re.sub(r'\D', '', cpf)
         if len(cpf_limpo) != 11:
             return False
+        if cpf_limpo == '00000000000':
+            return True
         return cpf_obj.validate(cpf_limpo)
 
     @staticmethod
@@ -26,6 +28,32 @@ class Validadores:
         return cpf
 
     @staticmethod
+    def validar_rg(rg):
+        """Valida RG (padrão SP com dígito verificador)"""
+        if not rg:
+            return True  # RG vazio é válido
+        rg_limpo = re.sub(r'[^0-9xX]', '', str(rg)).upper()
+        if len(rg_limpo) != 9:
+            return False
+            
+        # Calcula o dígito verificador do RG (SP)
+        soma = 0
+        multiplicadores = [2, 3, 4, 5, 6, 7, 8, 9]
+        
+        for i in range(8):
+            soma += int(rg_limpo[i]) * multiplicadores[i]
+            
+        resto = soma % 11
+        dv_esperado = str(11 - resto)
+        
+        if dv_esperado == '10':
+            dv_esperado = 'X'
+        elif dv_esperado == '11':
+            dv_esperado = '0'
+            
+        return rg_limpo[8] == dv_esperado
+
+    @staticmethod
     def validar_nis(nis):
         """Valida NIS/PIS"""
         if not nis:
@@ -34,6 +62,8 @@ class Validadores:
         nis_limpo = re.sub(r'\D', '', nis)
         if len(nis_limpo) != 11:
             return False
+        if nis_limpo == '00000000000':
+            return True
         return pis_obj.validate(nis_limpo)
 
     @staticmethod

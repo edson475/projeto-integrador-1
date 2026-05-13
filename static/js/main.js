@@ -21,16 +21,41 @@ function formatarCPF(valor) {
 }
 
 /**
+ * Formata RG
+ */
+function formatarRG(valor) {
+    let rg = valor.replace(/[^0-9xX]/gi, '').toUpperCase();
+    if (rg.length > 9) {
+        rg = rg.substring(0, 9);
+    }
+    let p1 = rg.substring(0, 2);
+    let p2 = rg.substring(2, 5);
+    let p3 = rg.substring(5, 8);
+    let p4 = rg.substring(8, 9);
+    let res = p1;
+    if (p2) res += "." + p2;
+    if (p3) res += "." + p3;
+    if (p4) res += "-" + p4;
+    return res;
+}
+
+/**
  * Formata NIS
  */
 function formatarNIS(valor) {
     let nis = valor.replace(/\D/g, '');
-    if (nis.length <= 11) {
-        nis = nis.replace(/(\d{3})(\d)/, '$1.$2');
-        nis = nis.replace(/(\d{5})(\d)/, '$1.$2');
-        nis = nis.replace(/(\d{2})(\d{1,2})$/, '$1-$2');
+    if (nis.length > 11) {
+        nis = nis.substring(0, 11);
     }
-    return nis;
+    let p1 = nis.substring(0, 3);
+    let p2 = nis.substring(3, 8);
+    let p3 = nis.substring(8, 10);
+    let p4 = nis.substring(10, 11);
+    let res = p1;
+    if (p2) res += "." + p2;
+    if (p3) res += "." + p3;
+    if (p4) res += "-" + p4;
+    return res;
 }
 
 /**
@@ -76,6 +101,9 @@ function validarCPF(cpf) {
     
     if (cpf.length !== 11) return false;
     
+    // Exceção solicitada
+    if (cpf === '00000000000') return true;
+
     // Verifica se todos os dígitos são iguais
     if (/^(\d)\1+$/.test(cpf)) return false;
     
@@ -116,6 +144,13 @@ document.addEventListener('DOMContentLoaded', function() {
     camposCPF.forEach(input => {
         input.addEventListener('input', function(e) {
             e.target.value = formatarCPF(e.target.value);
+        });
+    });
+
+    const camposRG = document.querySelectorAll('input[name="rg"]');
+    camposRG.forEach(input => {
+        input.addEventListener('input', function(e) {
+            e.target.value = formatarRG(e.target.value);
         });
     });
     

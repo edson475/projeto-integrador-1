@@ -86,7 +86,10 @@ sistema-web-supabase/
 │   ├── cadastro.html           # Formulário de cadastro
 │   ├── pesquisa.html           # Busca de cadastros
 │   ├── lista.html              # Listagem completa
-│   └── familia.html            # Composição familiar
+│   ├── familia.html            # Composição familiar
+│   ├── prontuario.html         # Prontuário SUAS e timeline
+│   ├── novo_atendimento.html   # Formulário de atendimento
+│   └── novo_encaminhamento.html# Registro de encaminhamento
 │
 ├── static/                     # Arquivos estáticos
 │   ├── css/
@@ -95,7 +98,8 @@ sistema-web-supabase/
 │       └── main.js             # JavaScript do frontend
 │
 ├── scripts/                    # Scripts SQL e utilitários
-│   └── criar_tabelas.sql       # SQL para criar tabelas no Supabase
+│   ├── criar_tabelas.sql       # SQL inicial (cadastros, membros, usuarios)
+│   └── 02_novas_tabelas_prontuarios.sql # SQL para Prontuários e Atendimentos
 │
 └── README.md                   # Documentação completa
 ```
@@ -162,6 +166,51 @@ Para habilitar que a API leia as tabelas corretamente, especialmente a `usuarios
 ```sql
 ALTER TABLE usuarios ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Acesso total a usuarios" ON usuarios FOR ALL USING (true) WITH CHECK (true);
+```
+
+### Tabela: prontuarios
+
+```sql
+CREATE TABLE prontuarios (
+    id SERIAL PRIMARY KEY,
+    cadastro_ref_id INTEGER UNIQUE REFERENCES cadastros(ref_id) ON DELETE CASCADE,
+    tecnico_id INTEGER REFERENCES usuarios(id) ON DELETE SET NULL,
+    data_abertura DATE DEFAULT CURRENT_DATE,
+    servico_vinculado VARCHAR(50),
+    motivo_procura TEXT,
+    status VARCHAR(20) DEFAULT 'Ativo',
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc', NOW()),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc', NOW())
+);
+```
+
+### Tabela: atendimentos
+
+```sql
+CREATE TABLE atendimentos (
+    id SERIAL PRIMARY KEY,
+    prontuario_id INTEGER REFERENCES prontuarios(id) ON DELETE CASCADE,
+    tecnico_id INTEGER REFERENCES usuarios(id) ON DELETE SET NULL,
+    data_atendimento DATE DEFAULT CURRENT_DATE,
+    tipo_atendimento VARCHAR(50),
+    demanda VARCHAR(100),
+    descricao TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc', NOW())
+);
+```
+
+### Tabela: encaminhamentos
+
+```sql
+CREATE TABLE encaminhamentos (
+    id SERIAL PRIMARY KEY,
+    atendimento_id INTEGER REFERENCES atendimentos(id) ON DELETE CASCADE,
+    servico_destino VARCHAR(100),
+    motivo TEXT,
+    status VARCHAR(20) DEFAULT 'Pendente',
+    retorno TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc', NOW())
+);
 ```
 
 ### Índices
@@ -231,6 +280,11 @@ SUPABASE_KEY=sua-chave-api-anon-aqui
 | `/pesquisa` | GET/POST | Buscar cadastros |
 | `/lista` | GET | Listar todos os cadastros |
 | `/familia/<ref_id>` | GET/POST | Gerenciar composição familiar |
+| `/prontuario/<ref_id>` | GET | Exibir prontuário e Timeline de atendimentos |
+| `/prontuario/<ref_id>/abrir` | POST | Abrir novo prontuário |
+| `/prontuario/<prontuario_id>/atendimento/novo` | GET/POST | Registrar Atendimento |
+| `/encaminhamento/<enc_id>/concluir` | POST | Marcar Encaminhamento como Realizado |
+| `/atendimento/<atendimento_id>/encaminhamento/novo` | GET/POST | Registrar Encaminhamento |
 | `/api/cep/<cep>` | GET | Buscar CEP na ViaCEP |
 
 ---
@@ -267,6 +321,13 @@ SUPABASE_KEY=sua-chave-api-anon-aqui
 - [x] Exibir todos os cadastros
 - [x] Ordenação por colunas
 - [x] Paginação (se necessário)
+
+### Acompanhamento Técnico (Prontuários e Atendimentos)
+- [x] Abertura de Prontuário SUAS vinculado ao Cadastro Titular (1 para 1)
+- [x] Histórico/Timeline contínua de Atendimentos
+- [x] Registro detalhado por Técnico Logado
+- [x] Geração e Rastreabilidade de Encaminhamentos
+- [x] Controle de Status das Demandas (Pendente -> Realizado)
 
 ---
 
@@ -340,6 +401,7 @@ Após iniciar, acessar: **http://127.0.0.1:5000**
 ## Próximos Passos (Melhorias Futuras)
 
 - [x] Autenticação de usuários (login/senha)
+- [x] Acompanhamento Técnico (Gestão de Prontuários e Atendimentos)
 - [ ] Controle de permissões
 - [ ] Exportação para PDF/Excel
 - [ ] Dashboard com estatísticas

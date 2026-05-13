@@ -210,52 +210,7 @@
 {% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Máscaras
-    document.getElementById('cpf').addEventListener('input', function(e) {
-        let value = e.target.value.replace(/\D/g, '');
-        if (value.length <= 11) {
-            value = value.replace(/(\d{3})(\d)/, '$1.$2');
-            value = value.replace(/(\d{3})(\d)/, '$1.$2');
-            value = value.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
-            e.target.value = value;
-        }
-    });
-
-    document.getElementById('nis').addEventListener('input', function(e) {
-        let value = e.target.value.replace(/\D/g, '');
-        if (value.length <= 11) {
-            value = value.replace(/(\d{3})(\d)/, '$1.$2');
-            value = value.replace(/(\d{5})(\d)/, '$1.$2');
-            value = value.replace(/(\d{2})(\d{1,2})$/, '$1-$2');
-            e.target.value = value;
-        }
-    });
-
-    document.getElementById('cep').addEventListener('input', function(e) {
-        let value = e.target.value.replace(/\D/g, '');
-        if (value.length <= 8) {
-            value = value.replace(/(\d{5})(\d)/, '$1-$2');
-            e.target.value = value;
-        }
-    });
-
-    document.getElementById('telefone').addEventListener('input', function(e) {
-        let value = e.target.value.replace(/\D/g, '');
-        if (value.length <= 11) {
-            value = value.replace(/(\d{2})(\d)/, '($1) $2');
-            value = value.replace(/(\d{5})(\d)/, '$1-$2');
-            e.target.value = value;
-        }
-    });
-
-    document.getElementById('data_nascimento').addEventListener('input', function(e) {
-        let value = e.target.value.replace(/\D/g, '');
-        if (value.length <= 10) {
-            value = value.replace(/(\d{2})(\d)/, '$1/$2');
-            value = value.replace(/(\d{2})(\d)/, '$1/$2');
-            e.target.value = value;
-        }
-    });
+    // Formatações e máscaras são gerenciadas pelo main.js
 
     // Buscar CEP
     document.getElementById('btnBuscarCep').addEventListener('click', buscarCep);
