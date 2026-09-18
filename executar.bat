@@ -39,7 +39,7 @@ REM Iniciar aplicacao
 echo [2/2] Iniciando aplicacao...
 echo.
 echo ==================================================
-echo  Acesse: http://127.0.0.1:5000
+echo  Acesse: http://127.0.0.1:5001
 echo  Para parar: Pressione Ctrl+C
 echo ==================================================
 echo.
